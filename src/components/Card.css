@@ -1,0 +1,21 @@
+.carta {
+    --color-palo: #555;
+  --color-texto: white;
+  aspect-ratio: 5/7;
+  border: 4px solid black;
+  width: 160px;
+  border-radius: 16px;
+    background: var(--color-palo);
+  color: var(--color-texto);
+}
+
+.carta[data-palo="p1"]  { --color-palo: #633821; }
+.carta[data-palo="p2"]  { --color-palo: #1E40AF; }
+.carta[data-palo="p3"]  { --color-palo: #991B1B; }
+.carta[data-palo="p4"]  { --color-palo: #15803D; }
+.carta[data-palo="p5"]  { --color-palo: #DB2777; }
+.carta[data-palo="p6"]  { --color-palo: #B45309; }
+.carta[data-palo="p7"]  { --color-palo: #CA8A04; }
+.carta[data-palo="p8"]  { --color-palo: #84CC16; --color-texto: #142B03; }
+.carta[data-palo="p9"]  { --color-palo: #38BDF8; --color-texto: #082F49; }
+.carta[data-palo="p10"] { --color-palo: #FDE047; --color-texto: #451A03; }
