@@ -1,12 +1,23 @@
 .carta {
-    --color-palo: #555;
+  --color-palo: #555;
   --color-texto: white;
   aspect-ratio: 5/7;
-  border: 4px solid black;
+  border: 8px solid black;
   width: 160px;
   border-radius: 16px;
-    background: var(--color-palo);
+  background: var(--color-palo);
   color: var(--color-texto);
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  figure{
+    flex:1;
+  }
+  footer{
+    display: flex;
+    justify-content: end;
+  }
 }
 
 .carta[data-palo="p1"]  { --color-palo: #633821; }
