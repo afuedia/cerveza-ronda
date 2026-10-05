@@ -1,13 +1,14 @@
 import './App.css'
 import { Card } from './components/Card.tsx'
+import { crearBaraja } from './game/baraja.ts'
 
 function App() {
+  const baraja = crearBaraja();
    return (
       <section id="center">
+        {baraja.map((x) => <Card key={`${x.palo}-${x.numero}`} carta={x}/>)}
         
-        <Card carta={{ palo: 'p1', numero: 8 }}/>
-        <Card carta={{ palo: 'p2', numero: 9 }}/>
-        <Card carta={{ palo: 'p3', numero: 10 }}/>
+        
         
       </section>
       )
