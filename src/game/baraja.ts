@@ -13,3 +13,13 @@ export function crearBaraja():Carta[] {
 
 
 }
+
+export function barajarBaraja(baraja: readonly Carta[]):Carta[] {
+  const copia:Carta[] = [...baraja];
+  for (let i=copia.length-1; i > 0; i--) {
+    const aleatorio = Math.floor(Math.random() * (i+1));
+    [copia[i], copia[aleatorio]] = [copia[aleatorio], copia[i]];
+  }
+  
+  return copia;
+}
