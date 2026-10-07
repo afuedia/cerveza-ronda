@@ -34,3 +34,5 @@ export type Fase =
   | { tipo: 'elegirRobo'; pilaJugada: PilaId }
   | { tipo: 'decidirCierre' }
   | { tipo: 'finPartida' };
+
+  export type Caso = 'coincide' | 'mayor' | 'menor';
