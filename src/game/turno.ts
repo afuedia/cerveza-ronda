@@ -62,12 +62,10 @@ export function jugarCarta(
 }
 
 export function darCarta(estado: EstadoPartida, indice: number): EstadoPartida {
-  // Quitar esa carta de la mano del jugador del turno
   const jugadorActual = estado.jugadores[estado.turno];
   const idRival = estado.turno === 0 ? 1 : 0;
   const jugadorContrario = estado.jugadores[idRival];
   const carta = jugadorActual.mano[indice];
-  // Manos nuevas
   const manoActualNueva = jugadorActual.mano.filter(
     (_cartaMano, posicion) => posicion !== indice,
   );
@@ -99,6 +97,7 @@ export function robar(
   const pilaJugada = estado.fase.pilaJugada;
   const otraPila = pilaJugada === 0 ? 1 : 0;
 
+  // ---------- ROBAR DEL MAZO ----------
   if (origen === "mazo") {
     const cartaMazo = estado.mazo[estado.mazo.length - 1];
     const mazoNuevo = estado.mazo.slice(0, estado.mazo.length - 1);
@@ -114,5 +113,46 @@ export function robar(
       fase: { tipo: "jugando" },
     };
   }
-  return estado; // provisional: aquí irá el robo de la pila
+
+  // ---------- ROBAR DE LA OTRA PILA ----------
+  // (si llegamos aquí, el origen es 'pila')
+
+  const pilaOrigen = estado.pilas[otraPila];
+  //    ↑            └ el ARRAY de la otra pila (primero eliges cuál)
+  const cartaPila = pilaOrigen[pilaOrigen.length - 1];
+  //    ↑           └ la carta de arriba de ese array
+  const pilaOrigenNueva = pilaOrigen.slice(0, pilaOrigen.length - 1);
+  //    ↑                 └ la pila sin su carta de arriba
+
+  // Regla extra: si la pila se queda vacía, se repone con la de arriba del mazo
+  let pilaFinal = pilaOrigenNueva;   // de partida, la pila tal como queda
+  let mazoFinal = estado.mazo;       // de partida, el mazo no cambia
+
+  if (pilaOrigenNueva.length === 0) {
+    const cartaReposicion = estado.mazo[estado.mazo.length - 1];
+    pilaFinal = [cartaReposicion];
+    //          └ una pila nueva con una sola carta: la que viene del mazo
+    mazoFinal = estado.mazo.slice(0, estado.mazo.length - 1);
+    //          └ y el mazo, sin esa carta
+  }
+
+  const nuevaMano = [...jugadorActual.mano, cartaPila];
+  const jugadorNuevo = { ...jugadorActual, mano: nuevaMano };
+  const jugadoresNuevos: [Jugador, Jugador] = [...estado.jugadores];
+  jugadoresNuevos[estado.turno] = jugadorNuevo;
+
+  const pilasNuevas: [Carta[], Carta[]] = [...estado.pilas];
+  pilasNuevas[otraPila] = pilaFinal;
+  //          ↑           └ la pila después de robar (y reponer, si hizo falta)
+  //          └ en la posición de la pila de la que robó
+
+  return {
+    ...estado,
+    mazo: mazoFinal,
+    //    └ el mismo de antes, o con una carta menos si hubo que reponer
+    pilas: pilasNuevas,
+    jugadores: jugadoresNuevos,
+    turno: estado.turno === 0 ? 1 : 0,
+    fase: { tipo: "jugando" },
+  };
 }

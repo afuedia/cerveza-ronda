@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { crearPartida } from "./partida";
-import { determinarCaso, jugarCarta } from "./turno";
+import { determinarCaso, jugarCarta, darCarta, robar } from "./turno";
 import type { Carta, EstadoPartida } from "./types";
 
 function estadoDePrueba(mano: Carta[], cima: Carta): EstadoPartida {
@@ -148,3 +148,70 @@ describe("jugarCarta", () => {
     expect(nuevo.turno).toBe(0); //¿Seguro? es 0 si decido no cerrar el turno, pero si decido cerrarlo, empieza el nuevo turno quien no empezó el turno que acaba de cerrar
   });
 });
+
+
+//darCarta
+describe("darCarta", () => {
+  it("el que da tiene una carta menos", () => {
+    // 1. PREPARAR: un estado en la fase de elegir carta para dar
+    const estado: EstadoPartida = {
+      ...estadoDePrueba(
+        [{ palo: "p3", numero: 4 }, { palo: "p1", numero: 8 }],  // mano del jugador 0
+        { palo: "p2", numero: 5 },                               // cima de la pila 0
+      ),
+      fase: { tipo: "elegirCartaParaDar" },
+    };
+
+    // 2. ACTUAR: el jugador 0 da la carta de la posición 0 (el 4 de p3)
+    const nuevo = darCarta(estado, 0);
+
+    // 3. COMPROBAR: sobre el estado NUEVO
+    expect(nuevo.jugadores[0].mano).toHaveLength(1);
+  });
+
+  it("el rival recibe la carta", () => {
+    const estado: EstadoPartida = {
+      ...estadoDePrueba(
+        [{ palo: "p3", numero: 4 }, { palo: "p1", numero: 8 }],
+        { palo: "p2", numero: 5 },
+      ),
+      fase: { tipo: "elegirCartaParaDar"}
+    };
+
+    const nuevo = darCarta(estado, 0);
+    const manoRibal = nuevo.jugadores[1].mano;
+    expect(manoRibal).toHaveLength(2)
+    expect(manoRibal[manoRibal.length - 1]).toEqual({palo: 'p3', numero: 4})
+  }) 
+
+  it("el turno pasa al rival: turno es 1.", () => {
+    const estado: EstadoPartida = {
+      ...estadoDePrueba(
+        [{ palo: "p3", numero: 4 }, { palo: "p1", numero: 8 }],
+        { palo: "p2", numero: 5 },
+      ),
+      fase: { tipo: "elegirCartaParaDar"}
+    };
+
+    const nuevo = darCarta(estado, 0);
+    const turnoRibal = nuevo.turno
+    expect(turnoRibal).toBe(1)
+  }) 
+
+  it("la fase vuelve a jugando", () => {
+    const estado: EstadoPartida = {
+      ...estadoDePrueba(
+        [{ palo: "p3", numero: 4 }, { palo: "p1", numero: 8 }],
+        { palo: "p2", numero: 5 },
+      ),
+      fase: { tipo: "elegirCartaParaDar"}
+    };
+
+    const nuevo = darCarta(estado, 0);
+    const fase = nuevo.fase;
+    expect(fase.tipo).toBe('jugando')
+  }) 
+});
+
+// El turno pasa al rival: turno es 1.
+// La fase vuelve a 'jugando'.
