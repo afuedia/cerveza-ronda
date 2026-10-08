@@ -36,3 +36,5 @@ export type Fase =
   | { tipo: 'finPartida' };
 
   export type Caso = 'coincide' | 'mayor' | 'menor';
+
+  export type OrigenRobo = 'mazo' | 'pila';
