@@ -156,3 +156,28 @@ export function robar(
     fase: { tipo: "jugando" },
   };
 }
+
+export function decidirCierre(estado: EstadoPartida, cerrar: boolean): EstadoPartida {
+  if (estado.fase.tipo !== 'decidirCierre') {
+    return estado
+  }
+  if (cerrar === false) {
+    const turno = estado.turno;
+    return {...estado,
+            turno: turno === 0 ? 1 : 0,
+            fase: { tipo: 'jugando'}
+    }
+  }
+  // No necesito un nuevo condicional
+  const jugador0 = estado.jugadores[0];
+  const jugador1 = estado.jugadores[1];
+
+  return {
+    ...estado,
+    jugadores: [
+      { mano: [], reserva: [...jugador0.reserva, ...jugador0.mano ]},
+      { mano: [], reserva: [...jugador1.reserva, ...jugador1.mano ]}
+    ]
+  }
+ 
+}

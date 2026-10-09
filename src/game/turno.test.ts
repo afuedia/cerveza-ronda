@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { crearPartida } from "./partida";
-import { determinarCaso, jugarCarta, darCarta, robar } from "./turno";
+import { determinarCaso, jugarCarta, darCarta, robar, decidirCierre } from "./turno";
 import type { Carta, EstadoPartida } from "./types";
 
 function estadoDePrueba(mano: Carta[], cima: Carta): EstadoPartida {
@@ -213,5 +213,162 @@ describe("darCarta", () => {
   }) 
 });
 
-// El turno pasa al rival: turno es 1.
-// La fase vuelve a 'jugando'.
+describe("robar", () => {
+  it("si la fase no es elegirRobo, no cambia nada", () => {
+    // 1. PREPARAR
+    const estado: EstadoPartida = {
+      ...estadoDePrueba(
+        [{ palo: "p3", numero: 4 }, { palo: "p1", numero: 8 }],  // mano del jugador 0
+        { palo: "p2", numero: 5 },                               // cima de la pila 0
+      ),
+      fase: { tipo: "elegirCartaParaDar" },
+    };
+
+    // 2. ACTUAR
+    const nuevo = robar(estado, 'mazo');
+
+    // 3. COMPROBAR
+    expect(nuevo).toBe(estado);
+  });
+
+  it("si roba del mazo, el mazo pierde una carta", () => {
+    // 1. PREPARAR
+    const estado: EstadoPartida = {
+      ...estadoDePrueba(
+        [{ palo: "p3", numero: 4 }, { palo: "p1", numero: 8 }],  // mano del jugador 0
+        { palo: "p2", numero: 5 },                               // cima de la pila 0
+      ),
+      mazo: [{ palo: 'p6', numero: 2 }, { palo: 'p7', numero: 3 }],
+      fase: { tipo: 'elegirRobo' , pilaJugada: 0},
+    };
+
+    // 2. ACTUAR
+    const nuevo = robar(estado, 'mazo');
+
+    // 3. COMPROBAR
+    expect( nuevo.mazo.length ).toBe( 1 );
+  });
+    it("si roba del mazo, se lleva la carta de arriba y pasa el turno", () => {
+    const estado: EstadoPartida = {
+      ...estadoDePrueba(
+        [{ palo: "p3", numero: 4 }, { palo: "p1", numero: 8 }],
+        { palo: "p2", numero: 5 },
+      ),
+      mazo: [{ palo: "p6", numero: 2 }, { palo: "p7", numero: 3 }],
+      fase: { tipo: "elegirRobo", pilaJugada: 0 },
+    };
+
+    const nuevo = robar(estado, "mazo");
+
+    const mano = nuevo.jugadores[0].mano;
+    expect(mano).toHaveLength(3);
+    expect(mano[mano.length - 1]).toEqual({ palo: "p7", numero: 3 }); // la de arriba del mazo
+    expect(nuevo.turno).toBe(1);
+    expect(nuevo.fase).toEqual({ tipo: "jugando" });
+  });
+
+  it("si roba de la otra pila y le quedan cartas, el mazo no cambia", () => {
+    const estado: EstadoPartida = {
+      ...estadoDePrueba(
+        [{ palo: "p3", numero: 4 }, { palo: "p1", numero: 8 }],
+        { palo: "p2", numero: 5 },
+      ),
+      mazo: [{ palo: "p6", numero: 2 }, { palo: "p7", numero: 3 }],
+      pilas: [
+        [{ palo: "p2", numero: 5 }],                              // pila 0: donde jugó
+        [{ palo: "p8", numero: 6 }, { palo: "p10", numero: 10 }], // pila 1: tiene DOS cartas
+      ],
+      fase: { tipo: "elegirRobo", pilaJugada: 0 },
+    };
+
+    const nuevo = robar(estado, "pila");
+
+    const mano = nuevo.jugadores[0].mano;
+    expect(mano[mano.length - 1]).toEqual({ palo: "p10", numero: 10 }); // la de arriba de la pila 1
+    expect(nuevo.pilas[1]).toEqual([{ palo: "p8", numero: 6 }]);       // le queda la de abajo
+    expect(nuevo.mazo).toHaveLength(2);                                 // no se repone
+  });
+
+  it("si roba la última carta de la otra pila, la repone con la de arriba del mazo", () => {
+    const estado: EstadoPartida = {
+      ...estadoDePrueba(
+        [{ palo: "p3", numero: 4 }, { palo: "p1", numero: 8 }],
+        { palo: "p2", numero: 5 },
+      ),
+      mazo: [{ palo: "p6", numero: 2 }, { palo: "p7", numero: 3 }],
+      fase: { tipo: "elegirRobo", pilaJugada: 0 },
+      // la pila 1 de estadoDePrueba tiene UNA carta: al robarla se queda vacía
+    };
+
+    const nuevo = robar(estado, "pila");
+
+    const mano = nuevo.jugadores[0].mano;
+    expect(mano[mano.length - 1]).toEqual({ palo: "p10", numero: 10 }); // se lleva la única de la pila 1
+    expect(nuevo.pilas[1]).toEqual([{ palo: "p7", numero: 3 }]);       // repuesta con la del mazo
+    expect(nuevo.mazo).toEqual([{ palo: "p6", numero: 2 }]);           // el mazo pierde esa carta
+  });
+});
+
+//decidirCierre
+describe("decidirCierre", () => {
+  it("Si la fase no es decidirCierre, no cambia nadas", () => {
+    // 1. PREPARAR
+    const estado: EstadoPartida = {
+      ...estadoDePrueba(
+        [{ palo: "p3", numero: 4 }, { palo: "p1", numero: 8 }],  // mano del jugador 0
+        { palo: "p2", numero: 5 },                               // cima de la pila 0
+      ),
+      fase: { tipo: "elegirCartaParaDar" },
+    };
+
+    // 2. ACTUAR
+    const nuevo = decidirCierre(estado, true);
+
+    // 3. COMPROBAR
+    expect(nuevo).toBe(estado);
+  });
+
+ it("Si sigue, pasa el turno y vuelve a jugar", () => {
+    // 1. PREPARAR
+    const estado: EstadoPartida = {
+      ...estadoDePrueba(
+        [{ palo: "p3", numero: 1 }, { palo: "p1", numero: 1 }],  // mano del jugador 0
+        { palo: "p2", numero: 5 },                               // cima de la pila 0
+      ),
+      fase: { tipo: "decidirCierre" },
+    };
+
+    // 2. ACTUAR
+    const nuevo = decidirCierre(estado, false);
+  
+    // 3. COMPROBAR
+    expect(nuevo.fase).toEqual({tipo: 'jugando'});
+    expect(nuevo.turno).toBe(1);
+  });
+  
+  it("Si cierra, las manos pasan a las reservas", () => {
+    // 1. PREPARAR
+    const estado: EstadoPartida = {
+      ...estadoDePrueba(
+        [{ palo: "p3", numero: 1 }, { palo: "p1", numero: 1 }],  // mano del jugador 0
+        { palo: "p2", numero: 5 },                               // cima de la pila 0
+      ),
+      fase: { tipo: "decidirCierre" },
+      turno: 1,
+    };
+
+    // 2. ACTUAR
+    const nuevo = decidirCierre(estado, true);
+    
+    // 3. COMPROBAR
+    expect(nuevo.jugadores[0].mano).toEqual([]);
+    expect(nuevo.jugadores[1].mano).toEqual([]);
+    expect(nuevo.jugadores[0].reserva).toEqual([
+      { palo: "p3", numero: 1 },
+      { palo: "p1", numero: 1 },
+    ]);
+    expect(nuevo.jugadores[1].reserva).toEqual([{ palo: "p9", numero: 9 }]);
+  });
+});
+//   Si sigue, pasa el turno y vuelve a jugar. decidirCierre(estado, false) → turno 1 y fase 'jugando'.
+// Si cierra, las manos pasan a las reservas. decidirCierre(estado, true) → las dos manos vacías, y en las reservas, las cartas que tenían en la mano.
