@@ -57,4 +57,17 @@ turno: turno,
   }
 }
 
+export function cerrarRonda(estado: EstadoPartida): EstadoPartida {
+  const jugador0 = estado.jugadores[0];
+  const jugador1 = estado.jugadores[1];
 
+  const estadoConReservas: EstadoPartida = {
+    ...estado,
+    jugadores: [
+      { mano: [], reserva: [...jugador0.reserva, ...jugador0.mano] },
+      { mano: [], reserva: [...jugador1.reserva, ...jugador1.mano] },
+    ],
+  };
+
+  return nuevaRonda(estadoConReservas);
+}
