@@ -3,6 +3,7 @@ import { crearPartida } from "./partida";
 import { determinarCaso, jugarCarta, darCarta, robar, decidirCierre } from "./turno";
 import type { EstadoPartida } from "./types";
 import { estadoDePrueba } from "./estadoPrueba";
+import { crearBaraja } from "./baraja";
 
 
 describe("determinarCaso", () => {
@@ -333,13 +334,14 @@ describe("decidirCierre", () => {
     expect(nuevo.turno).toBe(1);
   });
   
-  it("Si cierra, las manos pasan a las reservas", () => {
+  it("si cierra, las manos pasan a las reservas y empieza la ronda siguienteq", () => {
     // 1. PREPARAR
     const estado: EstadoPartida = {
       ...estadoDePrueba(
         [{ palo: "p3", numero: 1 }, { palo: "p1", numero: 1 }],  // mano del jugador 0
         { palo: "p2", numero: 5 },                               // cima de la pila 0
       ),
+      mazo: crearBaraja(),
       fase: { tipo: "decidirCierre" },
       turno: 1,
     };
@@ -348,13 +350,14 @@ describe("decidirCierre", () => {
     const nuevo = decidirCierre(estado, true);
     
     // 3. COMPROBAR
-    expect(nuevo.jugadores[0].mano).toEqual([]);
-    expect(nuevo.jugadores[1].mano).toEqual([]);
+    expect(nuevo.jugadores[0].mano.length).toEqual(7);
+    expect(nuevo.jugadores[1].mano.length).toEqual(7);
     expect(nuevo.jugadores[0].reserva).toEqual([
       { palo: "p3", numero: 1 },
       { palo: "p1", numero: 1 },
     ]);
     expect(nuevo.jugadores[1].reserva).toEqual([{ palo: "p9", numero: 9 }]);
+    expect(nuevo.ronda).toBe(2);
   });
 });
 //   Si sigue, pasa el turno y vuelve a jugar. decidirCierre(estado, false) → turno 1 y fase 'jugando'.

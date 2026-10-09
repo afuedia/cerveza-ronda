@@ -9,6 +9,7 @@ import type {
   OrigenRobo,
 } from "./types";
 import { calcularPuntos } from "./puntos";
+import { nuevaRonda } from "./partida";
 
 export function determinarCaso(jugada: Carta, cima: Carta): Caso {
   if (jugada.palo === cima.palo || jugada.numero === cima.numero) {
@@ -171,13 +172,14 @@ export function decidirCierre(estado: EstadoPartida, cerrar: boolean): EstadoPar
   // No necesito un nuevo condicional
   const jugador0 = estado.jugadores[0];
   const jugador1 = estado.jugadores[1];
-
-  return {
-    ...estado,
-    jugadores: [
-      { mano: [], reserva: [...jugador0.reserva, ...jugador0.mano ]},
-      { mano: [], reserva: [...jugador1.reserva, ...jugador1.mano ]}
-    ]
-  }
+  const estadoConReservas: EstadoPartida = {
+  ...estado,
+  jugadores: [
+    { mano: [], reserva: [...jugador0.reserva, ...jugador0.mano] },
+    { mano: [], reserva: [...jugador1.reserva, ...jugador1.mano] },
+  ],
+};
+  return nuevaRonda(estadoConReservas)
+    
  
 }
