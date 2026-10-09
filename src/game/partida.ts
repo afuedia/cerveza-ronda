@@ -1,5 +1,5 @@
 import type { EstadoPartida, JugadorId, Carta } from "./types";
-import { crearBaraja, barajarBaraja } from "./baraja";
+import { crearBaraja, barajarBaraja, rebarajarPilas } from "./baraja";
 
 function repartirManos(mazo: readonly Carta[]): { manos: [Carta[], Carta[]]; resto: Carta[] } {
   const mazoNuevo = mazo.slice(14);
@@ -37,18 +37,19 @@ export function nuevaRonda(estado: EstadoPartida): EstadoPartida {
       fase: { tipo: 'finPartida' }
     }
   }
-  const ronda = estado.ronda === 1 ? 2 : 3;
-  const reparto = repartirManos(estado.mazo);
-  // const mazoNuevo = estado.mazo.slice(14);
-  // const mano0 = estado.mazo.slice(0, 7);
-  // const mano1 = estado.mazo.slice(7, 14);
-  const otroJugador = estado.inicialRonda1 === 0 ? 1 : 0;
-  const turno = ronda === 3 ? estado.inicialRonda1 : otroJugador;
-  return {...estado,
+  const base = estado.mazo.length < 14 ? rebarajarPilas(estado) : estado;
+  const ronda = base.ronda === 1 ? 2 : 3;
+  const reparto = repartirManos(base.mazo);
+  // const mazoNuevo = base.mazo.slice(14);
+  // const mano0 = base.mazo.slice(0, 7);
+  // const mano1 = base.mazo.slice(7, 14);
+  const otroJugador = base.inicialRonda1 === 0 ? 1 : 0;
+  const turno = ronda === 3 ? base.inicialRonda1 : otroJugador;
+  return {...base,
     mazo: reparto.resto,
     jugadores: [
-  { ...estado.jugadores[0], mano: reparto.manos[0] },
-  { ...estado.jugadores[1], mano: reparto.manos[1] },
+  { ...base.jugadores[0], mano: reparto.manos[0] },
+  { ...base.jugadores[1], mano: reparto.manos[1] },
 ],
 turno: turno,
     ronda: ronda,

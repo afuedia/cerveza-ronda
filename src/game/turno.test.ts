@@ -1,9 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { crearPartida } from "./partida";
 import { determinarCaso, jugarCarta, darCarta, robar, decidirCierre } from "./turno";
-import type { EstadoPartida } from "./types";
+import type { Carta, EstadoPartida } from "./types";
 import { estadoDePrueba } from "./estadoPrueba";
 import { crearBaraja } from "./baraja";
+import { calcularGanador } from "./puntos";
+
+
 
 
 describe("determinarCaso", () => {
@@ -359,6 +362,76 @@ describe("decidirCierre", () => {
     expect(nuevo.jugadores[1].reserva).toEqual([{ palo: "p9", numero: 9 }]);
     expect(nuevo.ronda).toBe(2);
   });
+    it("si el mazo está vacío, rebaraja las pilas antes de robar", () => {
+    // 1. PREPARAR
+    const estado: EstadoPartida = {
+      ...estadoDePrueba(
+        [{ palo: "p3", numero: 4 }, { palo: "p1", numero: 8 }],
+        { palo: "p2", numero: 5 },
+      ),
+      mazo: [],
+      pilas: [
+        [{ palo: "p4", numero: 1 }, { palo: "p4", numero: 2 }, { palo: "p2", numero: 5 }],    // arriba: 5 de p2
+        [{ palo: "p6", numero: 1 }, { palo: "p6", numero: 2 }, { palo: "p10", numero: 10 }],  // arriba: 10 de p10
+      ],
+      fase: { tipo: "elegirRobo", pilaJugada: 0 },
+    };
+
+    // 2. ACTUAR
+    const nuevo = robar(estado, "mazo");
+
+    // 3. COMPROBAR
+    expect(nuevo.jugadores[0].mano).toHaveLength(3);           // 2 que tenía + 1 robada
+    expect(nuevo.pilas[0]).toEqual([{ palo: "p2", numero: 5 }]);   // solo la de arriba
+    expect(nuevo.pilas[1]).toEqual([{ palo: "p10", numero: 10 }]);
+    // mazo: 0 → rebaraja (+2 de cada pila = 4) → roba 1 = 3
+    expect(nuevo.mazo).toHaveLength(3);
+  });
 });
 //   Si sigue, pasa el turno y vuelve a jugar. decidirCierre(estado, false) → turno 1 y fase 'jugando'.
 // Si cierra, las manos pasan a las reservas. decidirCierre(estado, true) → las dos manos vacías, y en las reservas, las cartas que tenían en la mano.
+
+// Fabrica un estado en el que solo importan las reservas
+function estadoConReservas(reserva0: Carta[], reserva1: Carta[]): EstadoPartida {
+  return {
+    ...estadoDePrueba([], { palo: "p2", numero: 5 }),
+    jugadores: [
+      { mano: [], reserva: reserva0 },
+      { mano: [], reserva: reserva1 },
+    ],
+  };
+}
+
+describe("calcularGanador", () => {
+  it("gana quien tiene menos puntos", () => {
+    const estado = estadoConReservas(
+      [{ palo: "p1", numero: 5 }],   // 5 puntos
+      [{ palo: "p1", numero: 2 }],   // 2 puntos → gana el 1
+    );
+    expect(calcularGanador(estado)).toBe(1);
+  });
+
+  it("con empate a puntos, gana quien tiene menos palos", () => {
+    const estado = estadoConReservas(
+      [{ palo: "p1", numero: 5 }],                              // 5 puntos, 1 palo → gana el 0
+      [{ palo: "p1", numero: 2 }, { palo: "p2", numero: 3 }],   // 2 + 3 = 5 puntos, 2 palos
+    );
+    expect(calcularGanador(estado)).toBe(0);
+  });
+
+  it("con empate a puntos y palos, gana quien tiene menos cartas", () => {
+    const estado = estadoConReservas(
+      [{ palo: "p1", numero: 3 }, { palo: "p1", numero: 7 }, { palo: "p2", numero: 2 }], // 3 + 2 = 5, 2 palos, 3 cartas
+      [{ palo: "p1", numero: 3 }, { palo: "p2", numero: 2 }],                            // 3 + 2 = 5, 2 palos, 2 cartas → gana el 1
+    );
+    expect(calcularGanador(estado)).toBe(1);
+  });
+
+  it("si empatan en todo, es empate", () => {
+    const estado = estadoConReservas(
+      [{ palo: "p1", numero: 4 }],
+      [{ palo: "p1", numero: 4 }],
+    );
+    expect(calcularGanador(estado)).toBe("empate");
+  });
+});

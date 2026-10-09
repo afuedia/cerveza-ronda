@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { crearPartida, nuevaRonda } from './partida';
 import { estadoDePrueba } from './estadoPrueba';
-import { crearBaraja } from './baraja';
+import { crearBaraja, barajarBaraja, rebarajarPilas } from "./baraja";
 import type { EstadoPartida } from './types';
 
 describe('crearPartida', () => {
@@ -71,5 +71,26 @@ describe("nuevaRonda", () => {
     expect(nuevo.jugadores[0].reserva).toEqual([{ palo: "p6", numero: 2 }]); // no se pierde
     expect(nuevo.turno).toBe(1);   // ronda par: empieza el que NO empezó la 1
     expect(nuevo.fase).toEqual({ tipo: "jugando" });
+  });
+
+    it("si el mazo tiene menos de 14 cartas, rebaraja las pilas antes de repartir", () => {
+    // 1. PREPARAR
+    const cartas = crearBaraja(); // 100 cartas en orden, para fabricar trozos
+    const estado: EstadoPartida = {
+      ...estadoDePrueba([], { palo: "p2", numero: 5 }),
+      ronda: 1,
+      mazo: cartas.slice(0, 3),                      // solo 3 cartas: no llega a 14
+      pilas: [cartas.slice(3, 23), cartas.slice(23, 43)], // 20 cartas en cada pila
+    };
+
+    // 2. ACTUAR
+    const nuevo = nuevaRonda(estado);
+
+    // 3. COMPROBAR
+    expect(nuevo.jugadores[0].mano).toHaveLength(7);
+    expect(nuevo.jugadores[1].mano).toHaveLength(7);
+    expect(nuevo.pilas[0]).toHaveLength(1);   // solo queda la de arriba
+    expect(nuevo.pilas[1]).toHaveLength(1);
+    expect(nuevo.mazo).toHaveLength(27);
   });
 });
