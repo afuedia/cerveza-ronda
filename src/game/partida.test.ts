@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { crearPartida } from './partida';
+import { crearPartida, nuevaRonda } from './partida';
+import { estadoDePrueba } from './estadoPrueba';
+import { crearBaraja } from './baraja';
+import type { EstadoPartida } from './types';
 
 describe('crearPartida', () => {
   it('reparte 7 cartas a cada jugador, ninguna a reserva', () => {
@@ -28,4 +31,45 @@ describe('crearPartida', () => {
   });
 
 
+});
+
+describe("nuevaRonda", () => {
+  it("si era la última ronda, termina la partida", () => {
+    // 1. PREPARAR
+    const estado: EstadoPartida = {
+      ...estadoDePrueba([], { palo: "p2", numero: 5 }),
+      ronda: 3,
+    };
+
+    // 2. ACTUAR
+    const nuevo = nuevaRonda(estado);
+
+    // 3. COMPROBAR
+    expect(nuevo.fase).toEqual({ tipo: "finPartida" });
+  });
+    it("de la ronda 1 pasa a la 2: reparte, conserva reservas y empieza el otro", () => {
+    // 1. PREPARAR
+    const estado: EstadoPartida = {
+      ...estadoDePrueba([], { palo: "p2", numero: 5 }),
+      mazo: crearBaraja(),          // 100 cartas en orden
+      ronda: 1,
+      inicialRonda1: 0,
+      jugadores: [
+        { mano: [], reserva: [{ palo: "p6", numero: 2 }] },  // reserva de la ronda 1
+        { mano: [], reserva: [] },
+      ],
+    };
+
+    // 2. ACTUAR
+    const nuevo = nuevaRonda(estado);
+
+    // 3. COMPROBAR
+    expect(nuevo.ronda).toBe(2);
+    expect(nuevo.jugadores[0].mano).toHaveLength(7);
+    expect(nuevo.jugadores[1].mano).toHaveLength(7);
+    expect(nuevo.mazo).toHaveLength(86);
+    expect(nuevo.jugadores[0].reserva).toEqual([{ palo: "p6", numero: 2 }]); // no se pierde
+    expect(nuevo.turno).toBe(1);   // ronda par: empieza el que NO empezó la 1
+    expect(nuevo.fase).toEqual({ tipo: "jugando" });
+  });
 });
