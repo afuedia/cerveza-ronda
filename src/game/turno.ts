@@ -4,8 +4,6 @@ import type {
   EstadoPartida,
   PilaId,
   Jugador,
-  Fase,
-  JugadorId,
   OrigenRobo,
 } from "./types";
 import { calcularPuntos } from "./puntos";
@@ -41,26 +39,28 @@ export function jugarCarta(
   jugadoresNuevos[estado.turno] = jugadorNuevo;
   const pilasNuevas: [Carta[], Carta[]] = [...estado.pilas];
   pilasNuevas[pila] = pilaNueva;
-  let faseNueva: Fase = { tipo: "jugando" };
-  let turnoNuevo: JugadorId = estado.turno;
-  if (caso === "coincide") {
-    faseNueva = { tipo: "elegirCartaParaDar" };
-  } else if (caso === "mayor") {
-    faseNueva = { tipo: "elegirRobo", pilaJugada: pila };
-  } else {
-    if (calcularPuntos(manoNueva) <= 3) {
-      faseNueva = { tipo: "decidirCierre" };
-    } else {
-      turnoNuevo = estado.turno === 0 ? 1 : 0;
-    }
-  }
-  return {
+  
+  const conCartaJugada: EstadoPartida = {
     ...estado,
     jugadores: jugadoresNuevos,
     pilas: pilasNuevas,
-    fase: faseNueva,
-    turno: turnoNuevo,
   };
+
+  if (caso === "coincide") {
+    return { ...conCartaJugada, fase: { tipo: "elegirCartaParaDar" } };
+  }
+  if (caso === "mayor") {
+    return { ...conCartaJugada, fase: { tipo: "elegirRobo", pilaJugada: pila } };
+  }
+  if (manoNueva.length === 0) {
+    return terminarTurno(conCartaJugada)
+  } 
+  if (calcularPuntos(manoNueva) <=3) {
+    return {...conCartaJugada,
+            fase: {tipo: "decidirCierre"}
+            }
+  } 
+  return terminarTurno(conCartaJugada);
 }
 
 export function darCarta(estado: EstadoPartida, indice: number): EstadoPartida {
@@ -78,12 +78,7 @@ export function darCarta(estado: EstadoPartida, indice: number): EstadoPartida {
   jugadoresNuevos[estado.turno] = jugadorNuevo;
   jugadoresNuevos[idRival] = jugadorRivalNuevo;
 
-  return {
-    ...estado,
-    jugadores: jugadoresNuevos,
-    turno: idRival,
-    fase: { tipo: "jugando" },
-  };
+  return terminarTurno({ ...estado, jugadores: jugadoresNuevos });
 }
 
 export function robar(
@@ -105,14 +100,11 @@ export function robar(
     const jugadorNuevo = { ...jugadorActual, mano: nuevaMano };
     const jugadoresNuevos: [Jugador, Jugador] = [...base.jugadores];
     jugadoresNuevos[base.turno] = jugadorNuevo;
-    return {
-      ...base,
+    return terminarTurno({...base,
       mazo: mazoNuevo,
-      jugadores: jugadoresNuevos,
-      turno: base.turno === 0 ? 1 : 0,
-      fase: { tipo: "jugando" },
-    };
-  }
+      jugadores: jugadoresNuevos}) 
+    
+  };
 
   // ---------- ROBAR DE LA OTRA PILA ----------
   // (si llegamos aquí, el origen es 'pila')
@@ -125,8 +117,8 @@ export function robar(
   //    ↑                 └ la pila sin su carta de arriba
 
   // Regla extra: si la pila se queda vacía, se repone con la de arriba del mazo
-  let pilaFinal = pilaOrigenNueva;   // de partida, la pila tal como queda
-  let mazoFinal = base.mazo;       // de partida, el mazo no cambia
+  let pilaFinal = pilaOrigenNueva; // de partida, la pila tal como queda
+  let mazoFinal = base.mazo; // de partida, el mazo no cambia
 
   if (pilaOrigenNueva.length === 0) {
     const cartaReposicion = base.mazo[base.mazo.length - 1];
@@ -146,36 +138,31 @@ export function robar(
   //          ↑           └ la pila después de robar (y reponer, si hizo falta)
   //          └ en la posición de la pila de la que robó
 
-  return {
-    ...base,
+  return terminarTurno({...base,
     mazo: mazoFinal,
-    //    └ el mismo de antes, o con una carta menos si hubo que reponer
+    
     pilas: pilasNuevas,
-    jugadores: jugadoresNuevos,
-    turno: base.turno === 0 ? 1 : 0,
-    fase: { tipo: "jugando" },
-  };
-}
+    jugadores: jugadoresNuevos})
+  }
 
-export function decidirCierre(estado: EstadoPartida, cerrar: boolean): EstadoPartida {
-  if (estado.fase.tipo !== 'decidirCierre') {
-    return estado
+export function decidirCierre(estado: EstadoPartida, cerrar: boolean,): EstadoPartida {
+  if (estado.fase.tipo !== "decidirCierre") {
+    return estado;
   }
   if (cerrar === false) {
-    const turno = estado.turno;
-    return {...estado,
-            turno: turno === 0 ? 1 : 0,
-            fase: { tipo: 'jugando'}
-    }
-  }
+    return terminarTurno(estado)
+  };
   return cerrarRonda(estado);
 }
+
 
 export function terminarTurno(estado: EstadoPartida): EstadoPartida {
   if (estado.jugadores[estado.turno].mano.length === 0) {
     return cerrarRonda(estado);
   }
-  return {...estado,
-            turno: estado.turno === 0 ? 1 : 0,
-            fase: { tipo: 'jugando'}
-}}
+  return {
+    ...estado,
+    turno: estado.turno === 0 ? 1 : 0,
+    fase: { tipo: "jugando" },
+  };
+}

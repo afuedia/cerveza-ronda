@@ -549,7 +549,7 @@ describe("terminarTurno", () => {
     const nuevo = terminarTurno(estado);
     // 3. COMPROBAR
     expect(nuevo.ronda).toBe(2);
-    expect(nuevo.jugadores[0].mano)toHaveLength(7);
+    expect(nuevo.jugadores[0].mano).toHaveLength(7);
     expect(nuevo.jugadores[1].mano).toHaveLength(7);
     expect(nuevo.jugadores[1].reserva).toEqual([{ palo: "p9", numero: 9 }]);
     
