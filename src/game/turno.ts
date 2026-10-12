@@ -170,3 +170,12 @@ export function decidirCierre(estado: EstadoPartida, cerrar: boolean): EstadoPar
   }
   return cerrarRonda(estado);
 }
+
+export function terminarTurno(estado: EstadoPartida): EstadoPartida {
+  if (estado.jugadores[estado.turno].mano.length === 0) {
+    return cerrarRonda(estado);
+  }
+  return {...estado,
+            turno: estado.turno === 0 ? 1 : 0,
+            fase: { tipo: 'jugando'}
+}}
