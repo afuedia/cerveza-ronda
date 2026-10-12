@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { crearPartida, nuevaRonda } from './partida';
 import { estadoDePrueba } from './estadoPrueba';
-import { crearBaraja, barajarBaraja, rebarajarPilas } from "./baraja";
+import { crearBaraja } from "./baraja";
 import type { EstadoPartida } from './types';
 
 describe('crearPartida', () => {
