@@ -2,6 +2,7 @@ import type {
   Carta,
   Caso,
   EstadoPartida,
+  JugadorId,
   PilaId,
   Jugador,
   OrigenRobo,
@@ -19,6 +20,26 @@ export function determinarCaso(jugada: Carta, cima: Carta): Caso {
     return "menor";
   }
 }
+
+function robarDelMazo(estado: EstadoPartida, jugador: JugadorId): EstadoPartida {
+
+let base = estado;
+  if (estado.mazo.length === 0) {
+  base = rebarajarPilas(estado);
+} 
+
+const cartaMazo = base.mazo[base.mazo.length - 1];
+const mazoNuevo = base.mazo.slice(0, base.mazo.length - 1);
+const jugadorQueRoba = base.jugadores[jugador];
+
+const nuevaMano = [...jugadorQueRoba.mano, cartaMazo];
+const jugadorNuevo = { ...jugadorQueRoba, mano: nuevaMano };
+const jugadoresNuevos: [Jugador, Jugador] = [...base.jugadores];
+jugadoresNuevos[jugador] = jugadorNuevo;
+
+return { ...base, mazo: mazoNuevo, jugadores: jugadoresNuevos };
+}
+
 
 export function jugarCarta(
   estado: EstadoPartida,
@@ -47,6 +68,9 @@ export function jugarCarta(
   };
 
   if (caso === "coincide") {
+    if (manoNueva.length === 0) {
+      return terminarTurno(robarDelMazo(conCartaJugada, estado.turno === 0 ? 1 : 0))
+    }
     return { ...conCartaJugada, fase: { tipo: "elegirCartaParaDar" } };
   }
   if (caso === "mayor") {
@@ -94,16 +118,7 @@ export function robar(
   const jugadorActual = base.jugadores[base.turno];
   // ---------- ROBAR DEL MAZO ----------
   if (origen === "mazo") {
-    const cartaMazo = base.mazo[base.mazo.length - 1];
-    const mazoNuevo = base.mazo.slice(0, base.mazo.length - 1);
-    const nuevaMano = [...jugadorActual.mano, cartaMazo];
-    const jugadorNuevo = { ...jugadorActual, mano: nuevaMano };
-    const jugadoresNuevos: [Jugador, Jugador] = [...base.jugadores];
-    jugadoresNuevos[base.turno] = jugadorNuevo;
-    return terminarTurno({...base,
-      mazo: mazoNuevo,
-      jugadores: jugadoresNuevos}) 
-    
+    return terminarTurno(robarDelMazo(base, base.turno));
   };
 
   // ---------- ROBAR DE LA OTRA PILA ----------

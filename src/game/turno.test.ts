@@ -52,6 +52,24 @@ describe("determinarCaso", () => {
 });
 
 describe("jugarCarta", () => {
+    it("si coincide y se queda sin cartas, el rival roba del mazo y se cierra la ronda", () => {
+    // 1. PREPARAR: el jugador 0 juega su ÚNICA carta, del mismo palo que la cima
+    const estado: EstadoPartida = {
+      ...estadoDePrueba([{ palo: "p2", numero: 3 }], { palo: "p2", numero: 5 }),
+      mazo: crearBaraja(), // en orden: la de arriba (la última) es el 10 de p10
+    };
+
+    // 2. ACTUAR
+    const nuevo = jugarCarta(estado, 0, 0);
+
+    // 3. COMPROBAR
+    expect(nuevo.ronda).toBe(2); // se cerró la ronda
+    expect(nuevo.jugadores[1].reserva).toEqual([
+      { palo: "p9", numero: 9 },   // la que ya tenía el rival
+      { palo: "p10", numero: 10 }, // la que robó del mazo
+    ]);
+    expect(nuevo.jugadores[0].reserva).toEqual([]); // tú no robaste nada
+  });
   it("quita la carta de la mano del jugador", () => {
     const estado = crearPartida();
     const nuevo = jugarCarta(estado, 0, 0);
