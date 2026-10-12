@@ -142,6 +142,17 @@ describe("jugarCarta", () => {
     expect(nuevo.fase).toEqual({ tipo: "decidirCierre" });
     expect(nuevo.turno).toBe(0); //¿Seguro? es 0 si decido no cerrar el turno, pero si decido cerrarlo, empieza el nuevo turno quien no empezó el turno que acaba de cerrar
   });
+
+  it("Si es menor y la mano está vacia, cierra la ronda sin preguntas", () => {
+    const estado: EstadoPartida = {...estadoDePrueba([{ palo: "p5", numero: 2 }],
+      { palo: "p2", numero: 5 }),
+        mazo: crearBaraja()}
+    
+    const nuevo = jugarCarta(estado, 0, 0);
+
+    expect(nuevo.ronda).toBe(2);
+    expect(nuevo.fase).toEqual({tipo: "jugando"});
+  })
 });
 
 //darCarta
