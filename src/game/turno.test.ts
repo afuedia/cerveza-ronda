@@ -52,7 +52,28 @@ describe("determinarCaso", () => {
 });
 
 describe("jugarCarta", () => {
-    it("si coincide y se queda sin cartas, el rival roba del mazo y se cierra la ronda", () => {
+    it("no hace nada si la fase no es jugando", () => {
+    const estado: EstadoPartida = {
+      ...estadoDePrueba([{ palo: "p3", numero: 4 }], { palo: "p2", numero: 5 }),
+      fase: { tipo: "finPartida" },
+    };
+
+    const nuevo = jugarCarta(estado, 0, 0);
+
+    expect(nuevo).toBe(estado); // la misma caja: no ha fabricado nada
+  });
+
+  it("no hace nada si el índice no existe en la mano", () => {
+    const estado = estadoDePrueba(
+      [{ palo: "p3", numero: 4 }, { palo: "p1", numero: 8 }], // 2 cartas: posiciones 0 y 1
+      { palo: "p2", numero: 5 },
+    );
+
+    const nuevo = jugarCarta(estado, 9, 0);
+
+    expect(nuevo).toBe(estado);
+  });
+  it("si coincide y se queda sin cartas, el rival roba del mazo y se cierra la ronda", () => {
     // 1. PREPARAR: el jugador 0 juega su ÚNICA carta, del mismo palo que la cima
     const estado: EstadoPartida = {
       ...estadoDePrueba([{ palo: "p2", numero: 3 }], { palo: "p2", numero: 5 }),
@@ -65,7 +86,7 @@ describe("jugarCarta", () => {
     // 3. COMPROBAR
     expect(nuevo.ronda).toBe(2); // se cerró la ronda
     expect(nuevo.jugadores[1].reserva).toEqual([
-      { palo: "p9", numero: 9 },   // la que ya tenía el rival
+      { palo: "p9", numero: 9 }, // la que ya tenía el rival
       { palo: "p10", numero: 10 }, // la que robó del mazo
     ]);
     expect(nuevo.jugadores[0].reserva).toEqual([]); // tú no robaste nada
@@ -162,19 +183,41 @@ describe("jugarCarta", () => {
   });
 
   it("Si es menor y la mano está vacia, cierra la ronda sin preguntas", () => {
-    const estado: EstadoPartida = {...estadoDePrueba([{ palo: "p5", numero: 2 }],
-      { palo: "p2", numero: 5 }),
-        mazo: crearBaraja()}
-    
+    const estado: EstadoPartida = {
+      ...estadoDePrueba([{ palo: "p5", numero: 2 }], { palo: "p2", numero: 5 }),
+      mazo: crearBaraja(),
+    };
+
     const nuevo = jugarCarta(estado, 0, 0);
 
     expect(nuevo.ronda).toBe(2);
-    expect(nuevo.fase).toEqual({tipo: "jugando"});
-  })
+    expect(nuevo.fase).toEqual({ tipo: "jugando" });
+  });
 });
 
 //darCarta
 describe("darCarta", () => {
+    it("no hace nada si la fase no es jugando", () => {
+    const estado: EstadoPartida = {
+      ...estadoDePrueba([{ palo: "p3", numero: 4 }], { palo: "p2", numero: 5 }),
+      fase: { tipo: "finPartida" },
+    };
+
+    const nuevo = darCarta(estado, 0);
+
+    expect(nuevo).toBe(estado); // la misma caja: no ha fabricado nada
+  });
+
+  it("no hace nada si el índice no existe en la mano", () => {
+    const estado = estadoDePrueba(
+      [{ palo: "p3", numero: 4 }, { palo: "p1", numero: 8 }], // 2 cartas: posiciones 0 y 1
+      { palo: "p2", numero: 5 },
+    );
+
+    const nuevo = darCarta(estado, 9);
+
+    expect(nuevo).toBe(estado);
+  });
   it("el que da tiene una carta menos", () => {
     // 1. PREPARAR: un estado en la fase de elegir carta para dar
     const estado: EstadoPartida = {
@@ -581,6 +624,5 @@ describe("terminarTurno", () => {
     expect(nuevo.jugadores[0].mano).toHaveLength(7);
     expect(nuevo.jugadores[1].mano).toHaveLength(7);
     expect(nuevo.jugadores[1].reserva).toEqual([{ palo: "p9", numero: 9 }]);
-    
   });
 });

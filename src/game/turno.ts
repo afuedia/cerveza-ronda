@@ -46,7 +46,16 @@ export function jugarCarta(
   indice: number,
   pila: PilaId,
 ): EstadoPartida {
+  
+  if (estado.fase.tipo !== "jugando") {
+  return estado;
+}
   const jugadorActual = estado.jugadores[estado.turno];
+ 
+  if (indice < 0 || indice >= jugadorActual.mano.length) {
+  return estado;
+}
+
   const carta = jugadorActual.mano[indice];
   const pilaElegida = estado.pilas[pila];
   const cima = pilaElegida[pilaElegida.length - 1];
@@ -88,7 +97,13 @@ export function jugarCarta(
 }
 
 export function darCarta(estado: EstadoPartida, indice: number): EstadoPartida {
+  if (estado.fase.tipo !== "elegirCartaParaDar") {
+    return estado;
+  }
   const jugadorActual = estado.jugadores[estado.turno];
+    if (indice < 0 || indice >= jugadorActual.mano.length) {
+    return estado;
+  }
   const idRival = estado.turno === 0 ? 1 : 0;
   const jugadorContrario = estado.jugadores[idRival];
   const carta = jugadorActual.mano[indice];
