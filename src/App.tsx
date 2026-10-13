@@ -4,6 +4,7 @@ import "./App.css";
 import { Card } from "./components/Card.tsx";
 import { crearPartida } from "./game/partida.ts";
 import { jugarCarta, robar, decidirCierre, darCarta } from "./game/turno.ts";
+import { calcularGanador, calcularPuntos } from "./game/puntos.ts";
 
 function App() {
   const [partida, setPartida] = useState(crearPartida);
@@ -11,6 +12,9 @@ function App() {
   const manoTurno = partida.jugadores[partida.turno].mano;
   const pilaA = partida.pilas[0];
   const pilaB = partida.pilas[1];
+  const puntos0 = calcularPuntos(partida.jugadores[0].reserva);
+  const puntos1 = calcularPuntos(partida.jugadores[1].reserva);
+  const ganador = calcularGanador(partida);
   function jugarEnPila(pila: PilaId) {
     if (seleccionada === null) {
       return;
@@ -28,6 +32,14 @@ function App() {
 
   return (
     <main>
+      {partida.fase.tipo === "finPartida" && (
+  <div>
+    <h2>Fin de la partida</h2>
+    <p>Jugador 1: {puntos0} puntos</p>
+    <p>Jugador 2: {puntos1} puntos</p>
+    <p>{ganador === "empate" ? "¡Empate!" : `Ganador: jugador ${ganador + 1}`}</p>
+  </div>
+)}
       <p>
         Ronda {partida.ronda} · Turno del jugador {partida.turno + 1} Fase:{" "}
         {partida.fase.tipo}
