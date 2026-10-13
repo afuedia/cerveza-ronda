@@ -1,5 +1,5 @@
 import { useState, useReducer } from "react";
-import type { PilaId } from "../game/types";
+import type { PilaId, OrigenRobo } from "../game/types";
 import { partidaReducer } from "../game/reducer";
 import { crearPartida } from "../game/partida";
 
@@ -29,5 +29,13 @@ export function usePartida() {
     setSeleccionada(null)
   }
 
-  return { nuevaPartida, despachar, partida, seleccionada, jugarEnPila, pulsarCartaDeMano };
+  function pulsarCierre(cerrar: boolean) {
+    despachar( {tipo: "decidirCierre", cerrar: cerrar})
+  }
+
+  function pulsarRobo(origen: OrigenRobo) {
+    despachar( {tipo: "robar", origen: origen})
+  }
+
+  return { pulsarCierre, pulsarRobo, nuevaPartida, partida, seleccionada, jugarEnPila, pulsarCartaDeMano };
 }
