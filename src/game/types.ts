@@ -38,3 +38,10 @@ export type Fase =
   export type Caso = 'coincide' | 'mayor' | 'menor';
 
   export type OrigenRobo = 'mazo' | 'pila';
+
+  export type Accion =
+  | { tipo: "jugarCarta"; posicion: number; pila: PilaId }
+  | { tipo: "darCarta"; indice: number }
+  | { tipo: "robar"; origen: OrigenRobo }
+  | { tipo: "decidirCierre"; cerrar: boolean }
+  | { tipo: "crearPartida" };

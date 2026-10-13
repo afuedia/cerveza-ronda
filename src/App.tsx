@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useReducer } from "react";
 import type { PilaId } from "./game/types.ts";
 import "./App.css";
 import { Card } from "./components/Card.tsx";
