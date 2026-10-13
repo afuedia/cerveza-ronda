@@ -1,34 +1,17 @@
-import { useState, useReducer } from "react";
-import { partidaReducer } from "./game/reducer.ts";
-import type { PilaId } from "./game/types.ts";
 import "./App.css";
+import { Mano } from "./components/Mano.tsx";
 import { Card } from "./components/Card.tsx";
-import { crearPartida } from "./game/partida.ts";
 import { calcularGanador, calcularPuntos } from "./game/puntos.ts";
+import { usePartida } from "./hooks/usePartida.ts";
 
 function App() {
-  const [partida, despachar] = useReducer(partidaReducer, undefined, crearPartida);
-  const [seleccionada, setSeleccionada] = useState<number | null>(null);
+  const { nuevaPartida, despachar, partida, seleccionada, jugarEnPila, pulsarCartaDeMano } = usePartida();
   const manoTurno = partida.jugadores[partida.turno].mano;
   const pilaA = partida.pilas[0];
   const pilaB = partida.pilas[1];
   const puntos0 = calcularPuntos(partida.jugadores[0].reserva);
   const puntos1 = calcularPuntos(partida.jugadores[1].reserva);
   const ganador = calcularGanador(partida);
-  function jugarEnPila(pila: PilaId) {
-    if (seleccionada === null) {
-      return;
-    }
-    despachar( {tipo: "jugarCarta", posicion: seleccionada, pila: pila});
-    setSeleccionada(null);
-  }
-  function pulsarCartaDeMano(posicion: number) {
-    if (partida.fase.tipo === "elegirCartaParaDar") {
-      despachar( {tipo: "darCarta", indice: posicion});
-      return;
-    }
-    setSeleccionada(posicion);
-  }
 
   return (
     <main>
@@ -56,17 +39,7 @@ function App() {
             onClick={() => jugarEnPila(1)}
           />
         </div>
-        <div className="flex">
-          {manoTurno.map((carta, posicion) => (
-            <Card
-              key={`${carta.palo}-${carta.numero}`}
-              carta={carta}
-              onClick={() => pulsarCartaDeMano(posicion)}
-              seleccionada= {seleccionada === posicion}
-              
-            />
-          ))}
-        </div>
+        <Mano cartas={manoTurno} seleccionada={seleccionada} onPulsarCarta={pulsarCartaDeMano}/>
         <p>
           Seleccionada: {seleccionada === null ? "ninguna" : seleccionada + 1}
         </p>
@@ -95,7 +68,7 @@ function App() {
         </div>
       )}
 
-      <button onClick={() => {despachar({ tipo: "crearPartida" }); setSeleccionada(null)}}>Nueva partida</button>
+      <button onClick={nuevaPartida}>Nueva partida</button>
     </main>
   );
 }
