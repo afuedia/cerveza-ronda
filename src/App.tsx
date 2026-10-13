@@ -79,11 +79,11 @@ function App() {
           <button onClick={() => setPartida(decidirCierre(partida, false))}>
             Seguir jugando
           </button>
-          {partida.fase.tipo === "elegirCartaParaDar" && (
-  <p>Elige una carta de tu mano para dársela a tu rival</p>
-)}
         </div>
       )}
+      {partida.fase.tipo === "elegirCartaParaDar" && (
+        <p>Elige una carta de tu mano para dársela a tu rival</p>
+        )}
       {partida.fase.tipo === "elegirRobo" && (
         <div>
           <button onClick={() => setPartida(robar(partida, "mazo"))}>
