@@ -1,13 +1,13 @@
 import { useState, useReducer } from "react";
+import { partidaReducer } from "./game/reducer.ts";
 import type { PilaId } from "./game/types.ts";
 import "./App.css";
 import { Card } from "./components/Card.tsx";
 import { crearPartida } from "./game/partida.ts";
-import { jugarCarta, robar, decidirCierre, darCarta } from "./game/turno.ts";
 import { calcularGanador, calcularPuntos } from "./game/puntos.ts";
 
 function App() {
-  const [partida, setPartida] = useState(crearPartida);
+  const [partida, despachar] = useReducer(partidaReducer, undefined, crearPartida);
   const [seleccionada, setSeleccionada] = useState<number | null>(null);
   const manoTurno = partida.jugadores[partida.turno].mano;
   const pilaA = partida.pilas[0];
@@ -19,12 +19,12 @@ function App() {
     if (seleccionada === null) {
       return;
     }
-    setPartida(jugarCarta(partida, seleccionada, pila));
+    despachar( {tipo: "jugarCarta", posicion: seleccionada, pila: pila});
     setSeleccionada(null);
   }
   function pulsarCartaDeMano(posicion: number) {
     if (partida.fase.tipo === "elegirCartaParaDar") {
-      setPartida(darCarta(partida, posicion));
+      despachar( {tipo: "darCarta", indice: posicion});
       return;
     }
     setSeleccionada(posicion);
@@ -73,10 +73,10 @@ function App() {
       </section>
       {partida.fase.tipo === "decidirCierre" && (
         <div>
-          <button onClick={() => setPartida(decidirCierre(partida, true))}>
+          <button onClick={() => despachar({tipo: "decidirCierre", cerrar: true })}>
             Cerrar la ronda
           </button>
-          <button onClick={() => setPartida(decidirCierre(partida, false))}>
+          <button onClick={() => despachar({tipo: "decidirCierre",cerrar: false})}>
             Seguir jugando
           </button>
         </div>
@@ -86,16 +86,16 @@ function App() {
         )}
       {partida.fase.tipo === "elegirRobo" && (
         <div>
-          <button onClick={() => setPartida(robar(partida, "mazo"))}>
+          <button onClick={() => despachar({tipo: "robar", origen: "mazo"})}>
             Robar del Mazo
           </button>
-          <button onClick={() => setPartida(robar(partida, "pila"))}>
+          <button onClick={() => despachar({tipo: "robar", origen: "pila"})}>
             Robar de la Pila
           </button>
         </div>
       )}
 
-      <button onClick={() => setPartida(crearPartida())}>Nueva partida</button>
+      <button onClick={() => {despachar({ tipo: "crearPartida" }); setSeleccionada(null)}}>Nueva partida</button>
     </main>
   );
 }
