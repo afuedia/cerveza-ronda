@@ -7,3 +7,19 @@
   grid-template-columns: repeat(10, 160px);
   gap: 64px;
 }
+
+.flex{
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+button {
+  width: fit-content;
+}

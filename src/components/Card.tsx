@@ -1,11 +1,13 @@
 import './Card.css'
-import type { Carta } from '../game/types'
+import type { Carta} from '../game/types'
 
-type CardProps = { carta:Carta};
+type CardProps = { carta:Carta;
+  onClick?: () => void;
+};
 
-export function Card({ carta }:CardProps) {
+export function Card({ carta, onClick }:CardProps) {
    return (
-      <article className="carta" data-palo={carta.palo}>
+      <article className="carta" data-palo={carta.palo} onClick={onClick}>
         <header>{carta.numero}</header>
         <figure>
           {/* Aquí pendiente de poner imagenes */}
