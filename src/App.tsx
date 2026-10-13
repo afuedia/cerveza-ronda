@@ -62,6 +62,8 @@ function App() {
               key={`${carta.palo}-${carta.numero}`}
               carta={carta}
               onClick={() => pulsarCartaDeMano(posicion)}
+              seleccionada= {seleccionada === posicion}
+              
             />
           ))}
         </div>

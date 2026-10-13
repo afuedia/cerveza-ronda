@@ -8,6 +8,11 @@
   gap: 64px;
 }
 
+.carta.seleccionada {
+  outline: 3px solid gold;
+  transform: translateY(-8px);
+}
+
 .flex{
   display: flex;
   justify-content: center;
