@@ -10,9 +10,9 @@ type MesaProps = {
 
 export function Mesa({ pilaA, pilaB, cartasEnMazo, onPulsarPila }: MesaProps) {
   return (
-    <div className="flex">
+    <div className="mesa">
       <Card carta={pilaA[pilaA.length - 1]} onClick={() => onPulsarPila(0)} />
-      <div>Mazo: {cartasEnMazo} cartas</div>
+      <div className="mazo">Mazo: {cartasEnMazo} cartas</div>
       <Card carta={pilaB[pilaB.length - 1]} onClick={() => onPulsarPila(1)} />
     </div>
   );

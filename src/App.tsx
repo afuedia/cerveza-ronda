@@ -4,6 +4,8 @@ import { Mesa } from "./components/Mesa.tsx";
 import { Acciones } from "./components/Acciones.tsx";
 import { calcularGanador, calcularPuntos } from "./game/puntos.ts";
 import { usePartida } from "./hooks/usePartida.ts";
+import { FinPartida } from "./components/FinPartida.tsx";
+import { Marcador } from "./components/Marcador.tsx";
 
 function App() {
   const {
@@ -25,21 +27,9 @@ function App() {
   return (
     <main>
       {partida.fase.tipo === "finPartida" && (
-        <div>
-          <h2>Fin de la partida</h2>
-          <p>Jugador 1: {puntos0} puntos</p>
-          <p>Jugador 2: {puntos1} puntos</p>
-          <p>
-            {ganador === "empate"
-              ? "¡Empate!"
-              : `Ganador: jugador ${ganador + 1}`}
-          </p>
-        </div>
+      < FinPartida puntos0={puntos0} puntos1={puntos1} ganador={ganador}/>
       )}
-      <p>
-        Ronda {partida.ronda} · Turno del jugador {partida.turno + 1} Fase:{" "}
-        {partida.fase.tipo}
-      </p>
+      <Marcador ronda={partida.ronda} turno={partida.turno} fase={partida.fase.tipo} />
       <section>
         <Mesa
           pilaA={pilaA}

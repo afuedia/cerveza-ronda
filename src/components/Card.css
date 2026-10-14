@@ -1,22 +1,45 @@
 .carta {
   --color-palo: #555;
   --color-texto: white;
-  aspect-ratio: 5/7;
-  border: 8px solid black;
-  width: 160px;
-  border-radius: 16px;
+  container: carta / inline-size;
+  aspect-ratio: 5 / 7;
+  border: 6px solid black;
+  border-radius: 12px;
   background: var(--color-palo);
   color: var(--color-texto);
-  padding: 8px;
+  padding: 6px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  figure{
-    flex:1;
+  user-select: none;
+
+  header,
+  footer {
+    font-size: 22cqi;
+    font-weight: 700;
+    line-height: 1;
   }
-  footer{
+  figure {
+    flex: 1;
+    margin: 0;
+  }
+  footer {
     display: flex;
     justify-content: end;
+  }
+}
+
+/* Carta pequeña: un solo número, grande y centrado */
+@container carta (width < 70px) {
+  .carta header {
+    flex: 1;
+    display: grid;
+    place-items: center;
+    font-size: 60cqi;
+  }
+  .carta figure,
+  .carta footer {
+    display: none;
   }
 }
 

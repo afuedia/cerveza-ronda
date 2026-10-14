@@ -23,9 +23,9 @@ export function usePartida() {
       setSeleccionada(posicion);
     }
   }
-  
+
   function nuevaPartida() {
-    // las dos cosas que hace ahora el botón
+    
     despachar({ tipo: "crearPartida" }); 
     setSeleccionada(null)
   }

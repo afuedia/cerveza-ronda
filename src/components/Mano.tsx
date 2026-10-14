@@ -10,7 +10,7 @@ type ManoProps = {
 export function Mano({ cartas, seleccionada, onPulsarCarta }: ManoProps) {
   return (
     // aquí: el <div className="flex"> con el .map de App
-    <div className="flex">
+    <div className="mano">
           {cartas.map((carta, posicion) => (
             <Card
               key={`${carta.palo}-${carta.numero}`}
