@@ -1,7 +1,12 @@
 import { useState, useReducer } from "react";
-import type { PilaId, OrigenRobo } from "../game/types";
+import type { PilaId, OrigenRobo, EstadoPartida, Accion } from "../game/types";
 import { partidaReducer } from "../game/reducer";
 import { crearPartida } from "../game/partida";
+
+
+function reducerUnaPantalla(estado: EstadoPartida, accion: Accion): EstadoPartida {
+  return partidaReducer(estado, accion, estado.turno);
+}
 
 export function usePartida() {
   const [partida, despachar] = useReducer(partidaReducer, undefined, crearPartida);

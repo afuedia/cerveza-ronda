@@ -45,3 +45,24 @@ export type Fase =
   | { tipo: "robar"; origen: OrigenRobo }
   | { tipo: "decidirCierre"; cerrar: boolean }
   | { tipo: "crearPartida" };
+
+  // Lo que ve un jugador concreto: el servidor se lo envía a cada uno.
+// Se construye campo a campo (lista blanca) para que nada secreto se cuele.
+export type VistaJugador = {
+  yo: JugadorId;
+  miMano: Carta[];
+  miReserva: Carta[];
+  rival: {
+    cartasEnMano: number;
+    cartasEnReserva: number;
+  };
+  cimas: [Carta, Carta];
+  cartasEnMazo: number;
+  ronda: EstadoPartida["ronda"];
+  turno: JugadorId;
+  fase: Fase;
+  resultado: {
+    puntos: [number, number];
+    ganador: JugadorId | "empate";
+  } | null;
+};
