@@ -4,11 +4,9 @@ import { partidaReducer } from "../game/reducer";
 import { crearPartida } from "../game/partida";
 
 export function usePartida() {
-  // aquí: las dos líneas del useReducer y el useState
   const [partida, despachar] = useReducer(partidaReducer, undefined, crearPartida);
   const [seleccionada, setSeleccionada] = useState<number | null>(null);
 
-  // aquí: jugarEnPila y pulsarCartaDeMano
    function jugarEnPila(pila: PilaId) {
     if (seleccionada === null) {
       return;
@@ -21,8 +19,11 @@ export function usePartida() {
       despachar( {tipo: "darCarta", indice: posicion});
       return;
     }
-    setSeleccionada(posicion);
+    if (partida.fase.tipo === "jugando") {
+      setSeleccionada(posicion);
+    }
   }
+  
   function nuevaPartida() {
     // las dos cosas que hace ahora el botón
     despachar({ tipo: "crearPartida" }); 
