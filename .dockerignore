@@ -1,0 +1,7 @@
+# Lo que NO entra en la imagen al hacer "COPY . ."
+# Se instala dentro, y la versión de Windows no sirve en Linux
+node_modules
+# Se genera dentro con "pnpm build"
+dist
+# El historial de git no hace falta para ejecutar el juego
+.git

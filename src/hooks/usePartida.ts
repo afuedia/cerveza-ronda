@@ -9,9 +9,11 @@ export type EstadoSala =
   | { tipo: "salaLlena" }
   | { tipo: "jugando"; vista: VistaJugador };
 
-// El servidor está en la misma máquina que sirve la web, en el puerto 8080.
-// location.hostname = "localhost" en tu PC, o la IP del servidor desde el móvil.
-const URL_SERVIDOR = `ws://${location.hostname}:8080`;
+   // El juego está en la ruta /ws del MISMO sitio que sirve la web.
+   // location.host = "localhost:5173" en desarrollo, "192.168.0.52:3000" en casa…
+   // Si la web llegara por https, el socket tendría que ir por wss (cifrado).
+   const PROTOCOLO_WS = location.protocol === "https:" ? "wss" : "ws";
+   const URL_SERVIDOR = `${PROTOCOLO_WS}://${location.host}/ws`;
 
 export function usePartida() {
   const [sala, setSala] = useState<EstadoSala>({ tipo: "conectando" });
