@@ -2,53 +2,62 @@ import "./App.css";
 import { Mano } from "./components/Mano.tsx";
 import { Mesa } from "./components/Mesa.tsx";
 import { Acciones } from "./components/Acciones.tsx";
-import { calcularGanador, calcularPuntos } from "./game/puntos.ts";
 import { usePartida } from "./hooks/usePartida.ts";
 import { FinPartida } from "./components/FinPartida.tsx";
 import { Marcador } from "./components/Marcador.tsx";
 
 function App() {
   const {
-    nuevaPartida,
-    pulsarCierre,
-    pulsarRobo,
-    partida,
+    sala,
     seleccionada,
     jugarEnPila,
     pulsarCartaDeMano,
+    nuevaPartida,
+    pulsarCierre,
+    pulsarRobo,
   } = usePartida();
-  const manoTurno = partida.jugadores[partida.turno].mano;
-  const pilaA = partida.pilas[0];
-  const pilaB = partida.pilas[1];
-  const puntos0 = calcularPuntos(partida.jugadores[0].reserva);
-  const puntos1 = calcularPuntos(partida.jugadores[1].reserva);
-  const ganador = calcularGanador(partida);
+
+  if (sala.tipo === "conectando") return <p>Conectando con el servidor…</p>;
+  if (sala.tipo === "esperandoRival") return <p>Esperando a tu rival…</p>;
+  if (sala.tipo === "salaLlena") return <p>La sala está llena: ya hay dos jugadores.</p>;
+
+  // A partir de aquí, TS sabe que sala.tipo es "jugando" y que existe sala.vista.
+  const { vista } = sala;
+  const esMiTurno = vista.yo === vista.turno;
 
   return (
     <main>
-      {partida.fase.tipo === "finPartida" && (
-      < FinPartida puntos0={puntos0} puntos1={puntos1} ganador={ganador}/>
+      {vista.resultado !== null && (
+        <>
+          <FinPartida
+            puntos0={vista.resultado.puntos[0]}
+            puntos1={vista.resultado.puntos[1]}
+            ganador={vista.resultado.ganador}
+          />
+          <button onClick={nuevaPartida}>Nueva partida</button>
+        </>
       )}
-      <Marcador ronda={partida.ronda} turno={partida.turno} fase={partida.fase.tipo} />
+      <p>
+        Eres el jugador {vista.yo + 1} · {esMiTurno ? "te toca" : "turno de tu rival"} ·
+        Tu rival tiene {vista.rival.cartasEnMano} cartas en mano
+      </p>
+      <Marcador ronda={vista.ronda} turno={vista.turno} fase={vista.fase.tipo} />
       <section>
         <Mesa
-          pilaA={pilaA}
-          pilaB={pilaB}
-          cartasEnMazo={partida.mazo.length}
+          pilaA={[vista.cimas[0]]}
+          pilaB={[vista.cimas[1]]}
+          cartasEnMazo={vista.cartasEnMazo}
           onPulsarPila={jugarEnPila}
         />
         <Mano
-          cartas={manoTurno}
+          cartas={vista.miMano}
           seleccionada={seleccionada}
           onPulsarCarta={pulsarCartaDeMano}
         />
-        <p>
-          Seleccionada: {seleccionada === null ? "ninguna" : seleccionada + 1}
-        </p>
       </section>
-      <Acciones fase={partida.fase} onDecidirCierre={pulsarCierre} onRobar={pulsarRobo} />
-
-      <button onClick={nuevaPartida}>Nueva partida</button>
+      {esMiTurno && (
+        <Acciones fase={vista.fase} onDecidirCierre={pulsarCierre} onRobar={pulsarRobo} />
+      )}
     </main>
   );
 }
