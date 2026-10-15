@@ -14,7 +14,7 @@ describe("crearPartida", () => {
     const estado: EstadoPartida = {...crearPartida(), fase: {tipo: "finPartida"} };
     
     // 2. ACTUAR
-    const nuevo = partidaReducer(estado, { tipo: "crearPartida" });
+    const nuevo = partidaReducer(estado, { tipo: "crearPartida" }, 0);
     // 3. COMPROBAR
     expect(nuevo.fase).toEqual({ tipo: "jugando" });
   });
