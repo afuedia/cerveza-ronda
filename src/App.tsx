@@ -1,5 +1,6 @@
 import "./App.css";
 import { Mano } from "./components/Mano.tsx";
+import { Reserva } from "./components/Reserva.tsx";
 import { Mesa } from "./components/Mesa.tsx";
 import { Acciones } from "./components/Acciones.tsx";
 import { usePartida } from "./hooks/usePartida.ts";
@@ -54,6 +55,7 @@ function App() {
           seleccionada={seleccionada}
           onPulsarCarta={pulsarCartaDeMano}
         />
+        <Reserva cartas={vista.miReserva}/>
       </section>
       {esMiTurno && (
         <Acciones fase={vista.fase} onDecidirCierre={pulsarCierre} onRobar={pulsarRobo} />

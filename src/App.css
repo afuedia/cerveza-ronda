@@ -40,7 +40,7 @@ main > section {
 }
 
 /* ---------- Mano: las cartas se reparten el ancho ---------- */
-.mano {
+.mano  {
   container: mano / inline-size;
   width: 100%;
   display: flex;
@@ -65,4 +65,17 @@ main > section {
 .carta.seleccionada {
   outline: 3px solid gold;
   transform: translateY(-8px);
+}
+
+.reserva {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: clamp(4px, 1vw, 6px);
+  .carta {
+    width: clamp(36px, 10vw, 60px);
+    border-width: 3px;
+    border-radius: 6px;
+    padding: 3px;
+  }
 }
