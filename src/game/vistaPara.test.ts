@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { vistaPara } from "./vista";
+import { vistaPara } from "./vistaPara";
 import { estadoDePrueba } from "./estadoPrueba";
 import type { Carta, EstadoPartida } from "./types";
 
