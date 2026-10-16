@@ -1,4 +1,4 @@
-import "./card.css";
+import "./Card.css";
 import "./Ronda.css";
 import type { EstadoPartida } from "../game/types";
 type RondaProps = { ronda: EstadoPartida["ronda"] };
