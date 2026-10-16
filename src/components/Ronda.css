@@ -1,0 +1,15 @@
+/* Carta de ronda: reutiliza .carta y solo cambia color, ancho y número */
+.carta.ronda {
+  --color-palo: #F5F0E6;
+  --color-texto: #111;
+  width: 6rem;
+
+  div {
+    flex: 1;
+    display: grid;
+    place-items: center;
+    font-size: 70cqi;
+    font-weight: 700;
+    line-height: 1;
+  }
+}

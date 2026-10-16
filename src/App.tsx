@@ -6,6 +6,7 @@ import { Acciones } from "./components/Acciones.tsx";
 import { usePartida } from "./hooks/usePartida.ts";
 import { FinPartida } from "./components/FinPartida.tsx";
 import { Marcador } from "./components/Marcador.tsx";
+import { Ronda } from "./components/Ronda.tsx";
 
 function App() {
   const {
@@ -42,7 +43,8 @@ function App() {
         Eres el jugador {vista.yo + 1} · {esMiTurno ? "te toca" : "turno de tu rival"} ·
         Tu rival tiene {vista.rival.cartasEnMano} cartas en mano
       </p>
-      <Marcador ronda={vista.ronda} turno={vista.turno} fase={vista.fase.tipo} />
+      <Ronda ronda={vista.ronda}/>
+      <Marcador  turno={vista.turno} fase={vista.fase.tipo} />
       <section>
         <Mesa
           pilaA={[vista.cimas[0]]}
